@@ -17,6 +17,7 @@ from lib.model      import *
 from lib.pp_time    import * 
 from lib.pp_space   import spatial_Mode
 from lib.datas      import * 
+from matplotlib import pyplot as plt
 
 os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 
@@ -98,9 +99,6 @@ class vaeRunner(nn.Module):
         Generate the DataLoader for training 
 
         """
-        
-        # datafile = 
-        
         u_scaled, self.mean, self.std = loadData(self.datafile)
         ## Down-Sample the data with frequency
         ## since we already down-sampled it for database, we skip it here
@@ -183,7 +181,8 @@ class vaeRunner(nn.Module):
                                                                         data=self.train_dl,
                                                                         optimizer=self.opt,
                                                                         beta=beta,
-                                                                        device=self.device)
+                                                                        device=self.device, 
+                                                                        counter=epoch)
             self.model.eval()
             loss_test, MSE_test, KLD_test, elapsed_test = test_epoch(model=self.model,
                                                                                 data=self.val_dl,
@@ -453,7 +452,7 @@ class latentRunner(nn.Module):
                         "time":cost_time}
         
         torch.save(check_point,pathsBib.model_path + self.filename + self.fmat)
-        print(f"INFO: The checkpoints has been saved!")
+        print(f"INFO: The checkpoints has been saved in {pathsBib.model_path + self.filename + self.fmat}")
 
 #-------------------------------------------------
 
@@ -476,6 +475,7 @@ class latentRunner(nn.Module):
         elif    model_type == 'val' :   model_path = pathsBib.chekp_path    + self.filename + '_bestVal'  + self.fmat
         elif    model_type == 'final' : model_path = pathsBib.chekp_path    + self.filename + '_final'    + self.fmat
         try:
+            breakpoint()
             ckpoint = torch.load(model_path, map_location= self.device)
             
         except:

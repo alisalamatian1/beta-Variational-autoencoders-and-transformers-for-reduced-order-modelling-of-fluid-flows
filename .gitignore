@@ -1,1 +1,6 @@
 data/
+figs/
+models/
+logs/
+res/
+nns/__pycache__/

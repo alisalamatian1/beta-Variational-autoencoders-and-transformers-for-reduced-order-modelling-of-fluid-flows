@@ -28,8 +28,8 @@ device = ('cuda' if torch.cuda.is_available() else "cpu")
 if __name__ == "__main__":
 
     ## Env INIT
-    datafile = init.init_env(args.re)
-
+    # datafile = init.init_env(args.re)
+    datafile = "ns_incom_dt1_512.h5"
 
     ## Beta-VAE
     bvae   = vaeRunner(device,datafile)
@@ -41,15 +41,15 @@ if __name__ == "__main__":
         bvae.run()
 
 
-    ## POD
-    if args.pod:
-        POD = POD.POD(datafile, n_test=bvae.config.n_test, re=args.re,
-                    path='res/', n_modes=10, delta_t=bvae.config.delta_t)
-        POD.load_data()
-        POD.get_POD()
-        POD.eval_POD()
+    # POD
+    # if args.pod:
+    #     POD = POD.POD(datafile, n_test=bvae.config.n_test, re=args.re,
+    #                 path='res/', n_modes=10, delta_t=bvae.config.delta_t)
+    #     POD.load_data()
+    #     POD.get_POD()
+    #     POD.eval_POD()
 
-    # Time-series prediction runner 
+    # # Time-series prediction runner 
     lruner = latentRunner(args.nn,device)
     if args.m == 'train':
         lruner.train()
@@ -61,5 +61,5 @@ if __name__ == "__main__":
 
     vis_bvae(init.pathsBib.res_path + "modes_" + bvae.filename + ".hdf5",
             init.pathsBib.log_path + bvae.filename)
-    vis_pod(POD)
+    # vis_pod(POD)
     vis_temporal_Prediction(model_type=args.nn, predictor=lruner, vae=bvae)

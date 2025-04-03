@@ -5,7 +5,7 @@ author: @yuningw
 """
 import h5py
 import numpy as np
-
+from matplotlib import pyplot as plt
 
 ###############################
 ## beta-VAE
@@ -32,13 +32,32 @@ def loadData(file, printer=False):
     """
 
     with h5py.File(file, 'r') as f:
-        u_scaled = f['UV'][:]
-        mean = f['mean'][:]
-        std = f['std'][()]
+        # u_scaled = f['UV'][:]
+        # mean = f['mean'][:]
+        '''
+        array([[[[0.21258125]],
 
+        [[0.04647906]]]], dtype=float32)
+        '''
+        # std = f['std'][()]
+        u_scaled = f["Velocity"][:]
+        mean = np.mean(u_scaled, axis=0, keepdims=True).astype(np.float32)
+        std = np.array([np.std(u_scaled[:, :, :, i]) for i in range(u_scaled.shape[-1])])
+
+        # 1000, 128, 128, 2
+        # temp = f["Velocity"][:]
+        # # 1000, 2, 128, 128
+        # u_scaled = np.zeros((temp.shape[0],temp.shape[-1],temp.shape[1], temp.shape[2]))
+        # u_scaled[:, 0, :, :] = temp[:, :, :, 0]
+        # u_scaled[:, 1, :, :] = temp[:, :, :, 1]
+        # u_scaled = u_scaled.astype(np.float32)
+        # mean = np.mean(u_scaled, axis=0, keepdims=True).astype(np.float32)
+        # std = np.std(u_scaled, axis=0, keepdims=True).astype(np.float32)
+        # breakpoint()
     u_scaled = np.moveaxis(u_scaled, -1, 1)
     mean = np.moveaxis(mean, -1, 1)
-    std = np.moveaxis(std, -1, 1)
+    # std = np.moveaxis(std, -1, 1)
+    std = std.reshape((1, 2, 1, 1))
 
     if printer:
         print('u_scaled: ', u_scaled.shape)

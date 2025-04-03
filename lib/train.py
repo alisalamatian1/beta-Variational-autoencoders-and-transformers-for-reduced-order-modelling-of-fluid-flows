@@ -8,7 +8,7 @@ import torch
 import torch.nn as nn
 import time
 import numpy as np
-
+from matplotlib import pyplot as plt
 
 ##############################################
 # Functions used for training beta-VAE
@@ -43,7 +43,7 @@ def loss_function(reconstruction, data, mean, logvariance, beta):
 
     return loss, MSE, KLD
 
-def train_epoch(model, data, optimizer, beta, device):
+def train_epoch(model, data, optimizer, beta, device, counter=1):
     start_epoch_time = time.time()
 
     loss_batch = [] # Store batch loss
@@ -51,13 +51,17 @@ def train_epoch(model, data, optimizer, beta, device):
     KLD_batch = [] # Store batch KLD
     logVar_batch = [] # Store batch logVar to count collapsed modes
 
-    for batch in data:
+    for i, batch in enumerate(data):
         #batch_noise = gaussian_noise(batch, 0.2, device)
         if not batch.is_cuda:
             batch = batch.to(device, non_blocking=True)
             #batch_noise = batch_noise.to(device, non_blocking=True)
-
         rec, mean, logvariance = model(batch)# + batch_noise)
+        
+        if i == 0 and counter % 100 == 0:
+            plt.imshow(rec.cpu().detach().numpy()[10, 0, :, :])
+            plt.savefig(f"reconstruction{counter}.png")
+        
         loss, MSE, KLD = loss_function(rec, batch, mean, logvariance, beta)
 
         loss_batch.append(loss.item())
