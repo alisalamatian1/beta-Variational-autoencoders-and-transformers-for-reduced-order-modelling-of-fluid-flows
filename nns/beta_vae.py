@@ -88,7 +88,7 @@ class VAE(nn.Module):
     
     def buildEncoder(self, latent_dim):
         encoder = nn.Sequential(
-            nn.Conv2d(in_channels=2, out_channels=8, kernel_size=3, stride=2, padding=1),  # 64x64
+            nn.Conv2d(in_channels=3, out_channels=8, kernel_size=3, stride=2, padding=1),  # 64x64
             nn.ELU(),
             nn.Conv2d(in_channels=8, out_channels=16, kernel_size=3, stride=2, padding=1),  # 32x32
             nn.ELU(),
@@ -124,7 +124,7 @@ class VAE(nn.Module):
             nn.ELU(),
             nn.ConvTranspose2d(in_channels=16, out_channels=8, kernel_size=3, stride=2, padding=1, output_padding=1),  # 64x64
             nn.ELU(),
-            nn.ConvTranspose2d(in_channels=8, out_channels=2, kernel_size=3, stride=2, padding=1, output_padding=1),  # 128x128
+            nn.ConvTranspose2d(in_channels=8, out_channels=3, kernel_size=3, stride=2, padding=1, output_padding=1),  # 128x128
         )
         return decoder
 

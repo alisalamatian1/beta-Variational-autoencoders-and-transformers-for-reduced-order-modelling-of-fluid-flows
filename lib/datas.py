@@ -40,7 +40,9 @@ def loadData(file, printer=False):
         [[0.04647906]]]], dtype=float32)
         '''
         # std = f['std'][()]
-        u_scaled = f["Velocity"][:]
+        velocity = f["Velocity"][:]
+        pressure = f["pressure"][:]
+        u_scaled = np.concatenate((velocity, pressure), axis=3)
         mean = np.mean(u_scaled, axis=0, keepdims=True).astype(np.float32)
         std = np.array([np.std(u_scaled[:, :, :, i]) for i in range(u_scaled.shape[-1])])
 
@@ -57,13 +59,24 @@ def loadData(file, printer=False):
     u_scaled = np.moveaxis(u_scaled, -1, 1)
     mean = np.moveaxis(mean, -1, 1)
     # std = np.moveaxis(std, -1, 1)
-    std = std.reshape((1, 2, 1, 1))
+    std = std.reshape((1, 3, 1, 1))
 
     if printer:
         print('u_scaled: ', u_scaled.shape)
         print('mean: ', mean.shape)
         print('std: ', std)
 
+    # fig, ax = plt.subplots(nrows=10, ncols=3)
+    # for i in range(u_scaled.shape[0]):
+    #     if i % 100 == 0:
+    #         ax[i // 100, 0].imshow(u_scaled[i, 0, :, :])
+    #         ax[i // 100, 1].imshow(u_scaled[i, 1, :, :])
+    #         ax[i // 100, 2].imshow(u_scaled[i, 2, :, :])
+    #         ax[i // 100, 0].axis('off')
+    #         ax[i // 100, 1].axis('off')
+    #         ax[i // 100, 2].axis('off')
+    
+    # plt.savefig('timeseries_of_data.png')
     return u_scaled, mean, std
 
 
@@ -127,7 +140,6 @@ def make_Sequence(cfg,data):
 
     from tqdm import tqdm 
     import numpy as np 
-
     if len(data.shape) <=2:
         data    = np.expand_dims(data,0)
     seqLen      = cfg.in_dim
@@ -176,6 +188,6 @@ def make_DataLoader(X,y,batch_size,
     train_d , val_d = random_split(dataset,[train_size, valid_size])
     
     train_dl = DataLoader(train_d,batch_size=batch_size,drop_last=drop_last,shuffle=True)
-    val_dl = DataLoader(val_d,batch_size=batch_size,drop_last=drop_last,shuffle=True)
+    val_dl = DataLoader(val_d,batch_size=batch_size, drop_last=drop_last,shuffle=True)
     
     return train_dl, val_dl

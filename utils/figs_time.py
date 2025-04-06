@@ -119,8 +119,9 @@ def vis_temporal_Prediction(
     if if_snapshot and (p.any() != None) and (g.any() != None):
         VAErec, pred = make_physical_prediction(vae=vae,pred_latent=p,true_latent=g,device=vae.device)
         
-        stepPlot     = int(predictor.config.in_dim + 1) # Here we test the prediction purely based on the predicted variables 
-
+        # stepPlot     = int(predictor.config.in_dim + 1) # Here we test the prediction purely based on the predicted variables 
+        stepPlot = 110
+        
         predFieldFigure(vae.test_d,VAErec,pred,
                         vae.std,vae.mean,
                         stepPlot  = stepPlot,
@@ -373,7 +374,7 @@ def plotCompletePoincare(Nmodes,planeNo,
 
 #-----------------------------------------------------------
 
-def predFieldFigure(true, VAErec, pred, std_data, mean_data, stepPlot, model_name, save_file, dpi=200):
+def predFieldFigure_0(true, VAErec, pred, std_data, mean_data, stepPlot, model_name, save_file, dpi=200):
     
     """
     
@@ -445,6 +446,88 @@ def predFieldFigure(true, VAErec, pred, std_data, mean_data, stepPlot, model_nam
                         cmap="RdBu_r", vmin=-Vlim, vmax=Vlim, extent=[-9, 87, -14, 14])
     ax[1, 2].set_title(r'$\beta$-VAE + ' + model_name + ' v\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
     fig.colorbar(im, ax=ax[1, 2], shrink=0.7)
+
+    ax[1, 0].set_xlabel('x/c')
+    ax[1, 1].set_xlabel('x/c')
+    ax[1, 2].set_xlabel('x/c')
+    ax[0, 0].set_ylabel('y/c')
+    ax[1, 0].set_ylabel('y/c')
+
+    # fig.set_tight_layout(True)
+
+    if save_file != None:
+        plt.savefig(save_file, bbox_inches = 'tight', dpi = dpi)
+
+    return fig, ax
+
+
+def predFieldFigure(true, VAErec, pred, std_data, mean_data, stepPlot, model_name, save_file, dpi=200):
+    import matplotlib.pyplot as plt 
+    fig, ax = plt.subplots(3, 3, figsize=(11, 4), sharex='col', sharey='row')
+
+    Umax = 1.5
+    Umin = 0
+    Vlim = 1
+
+    # From dataset
+    true_u  = (true[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    true_v  = (true[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    true_p  = (true[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    
+    vae_u   = (VAErec[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    vae_v   = (VAErec[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    vae_p   = (VAErec[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    
+    pred_u  = (pred[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    pred_v  = (pred[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    pred_p  = (pred[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+
+    
+    im = ax[0, 0].imshow(true_u,
+                        cmap="RdBu_r", vmin=Umin, vmax=Umax)
+    ax[0, 0].set_title('True u\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
+    fig.colorbar(im, ax=ax[0, 0], shrink=0.7, ticks=([0, 0.5, 1, 1.5]))
+
+    im = ax[1, 0].imshow(true_v,
+                        cmap="RdBu_r", vmin=-Vlim, vmax=Vlim)
+    ax[1, 0].set_title('True v\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
+    fig.colorbar(im, ax=ax[1, 0], shrink=0.7)
+    
+    ax[2, 0].imshow(true_p, cmap="RdBu_r", vmin=-Vlim, vmax=Vlim)
+    ax[2, 0].set_title('True p\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
+    fig.colorbar(im, ax=ax[2, 0], shrink=0.7)
+
+    # Encoded and decoded
+    im = ax[0, 1].imshow(vae_u,
+                        cmap="RdBu_r", vmin=Umin, vmax=Umax)
+    ax[0, 1].set_title(r'$\beta$-VAE' + ' u\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
+    fig.colorbar(im, ax=ax[0, 1], shrink=0.7, ticks=([0, 0.5, 1, 1.5]))
+
+    im = ax[1, 1].imshow(vae_v,
+                        cmap="RdBu_r", vmin=-Vlim, vmax=Vlim)
+    ax[1, 1].set_title(r'$\beta$-VAE' + ' v\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
+    fig.colorbar(im, ax=ax[1, 1], shrink=0.7)
+    
+    im = ax[2, 1].imshow(vae_p,
+                        cmap="RdBu_r", vmin=-Vlim, vmax=Vlim)
+    ax[2, 1].set_title(r'$\beta$-VAE' + ' v\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
+    fig.colorbar(im, ax=ax[2, 1], shrink=0.7)
+
+    # Encoded, predicted and decoded
+    im = ax[0, 2].imshow(pred_u,
+                        cmap="RdBu_r", vmin=Umin, vmax=Umax)
+    ax[0, 2].set_title(r'$\beta$-VAE + ' + model_name + ' u\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
+    fig.colorbar(im, ax=ax[0, 2], shrink=0.7, ticks=([0, 0.5, 1, 1.5]))
+
+    im = ax[1, 2].imshow(pred_v,
+                        cmap="RdBu_r", vmin=-Vlim, vmax=Vlim)
+    ax[1, 2].set_title(r'$\beta$-VAE + ' + model_name + ' v\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
+    fig.colorbar(im, ax=ax[1, 2], shrink=0.7)
+    
+    im = ax[2, 2].imshow(pred_p,
+                        cmap="RdBu_r", vmin=-Vlim, vmax=Vlim)
+    ax[2, 2].set_title(r'$\beta$-VAE + ' + model_name + ' v\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
+    fig.colorbar(im, ax=ax[2, 2], shrink=0.7)
 
     ax[1, 0].set_xlabel('x/c')
     ax[1, 1].set_xlabel('x/c')
