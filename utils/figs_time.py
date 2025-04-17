@@ -461,32 +461,46 @@ def predFieldFigure_0(true, VAErec, pred, std_data, mean_data, stepPlot, model_n
     return fig, ax
 
 
-def predFieldFigure(true, VAErec, pred, std_data, mean_data, stepPlot, model_name, save_file, dpi=200):
+def predFieldFigure(true, VAErec, pred, std_data, mean_data, stepPlot, model_name, save_file, dpi=72):
     import matplotlib.pyplot as plt 
-    fig, ax = plt.subplots(3, 3, figsize=(11, 4), sharex='col', sharey='row')
+    fig, ax = plt.subplots(3, 3, figsize=(15, 15), sharex='col', sharey='row')
 
-    Umax = 1.5
-    Umin = 0
-    Vlim = 1
+    # Umax = 1.5
+    Umax = 2.5
+    # Umin = 0
+    Umin = -Umax
+    # Vlim = 1
+    Vlim = 2.5
 
     # From dataset
-    true_u  = (true[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
-    true_v  = (true[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
-    true_p  = (true[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    true_u  = (true[stepPlot, 0, :, :]).squeeze()# * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    true_v  = (true[stepPlot, 1, :, :]).squeeze()# * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    true_p  = (true[stepPlot, 2, :, :]).squeeze()# * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
     
-    vae_u   = (VAErec[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
-    vae_v   = (VAErec[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
-    vae_p   = (VAErec[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    vae_u   = (VAErec[stepPlot, 0, :, :]).squeeze()# * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    vae_v   = (VAErec[stepPlot, 1, :, :]).squeeze()# * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    vae_p   = (VAErec[stepPlot, 2, :, :]).squeeze()# * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
     
-    pred_u  = (pred[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
-    pred_v  = (pred[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
-    pred_p  = (pred[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    pred_u  = (pred[stepPlot, 0, :, :]).squeeze()# * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    pred_v  = (pred[stepPlot, 1, :, :]).squeeze()# * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    pred_p  = (pred[stepPlot, 2, :, :]).squeeze()# * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    # true_u  = (true[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    # true_v  = (true[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    # true_p  = (true[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    
+    # vae_u   = (VAErec[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    # vae_v   = (VAErec[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    # vae_p   = (VAErec[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    
+    # pred_u  = (pred[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    # pred_v  = (pred[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    # pred_p  = (pred[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
 
     
     im = ax[0, 0].imshow(true_u,
                         cmap="RdBu_r", vmin=Umin, vmax=Umax)
     ax[0, 0].set_title('True u\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
-    fig.colorbar(im, ax=ax[0, 0], shrink=0.7, ticks=([0, 0.5, 1, 1.5]))
+    fig.colorbar(im, ax=ax[0, 0], shrink=0.7)
 
     im = ax[1, 0].imshow(true_v,
                         cmap="RdBu_r", vmin=-Vlim, vmax=Vlim)
@@ -501,7 +515,7 @@ def predFieldFigure(true, VAErec, pred, std_data, mean_data, stepPlot, model_nam
     im = ax[0, 1].imshow(vae_u,
                         cmap="RdBu_r", vmin=Umin, vmax=Umax)
     ax[0, 1].set_title(r'$\beta$-VAE' + ' u\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
-    fig.colorbar(im, ax=ax[0, 1], shrink=0.7, ticks=([0, 0.5, 1, 1.5]))
+    fig.colorbar(im, ax=ax[0, 1], shrink=0.7)
 
     im = ax[1, 1].imshow(vae_v,
                         cmap="RdBu_r", vmin=-Vlim, vmax=Vlim)
@@ -510,14 +524,14 @@ def predFieldFigure(true, VAErec, pred, std_data, mean_data, stepPlot, model_nam
     
     im = ax[2, 1].imshow(vae_p,
                         cmap="RdBu_r", vmin=-Vlim, vmax=Vlim)
-    ax[2, 1].set_title(r'$\beta$-VAE' + ' v\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
+    ax[2, 1].set_title(r'$\beta$-VAE' + ' p\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
     fig.colorbar(im, ax=ax[2, 1], shrink=0.7)
 
     # Encoded, predicted and decoded
     im = ax[0, 2].imshow(pred_u,
                         cmap="RdBu_r", vmin=Umin, vmax=Umax)
     ax[0, 2].set_title(r'$\beta$-VAE + ' + model_name + ' u\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
-    fig.colorbar(im, ax=ax[0, 2], shrink=0.7, ticks=([0, 0.5, 1, 1.5]))
+    fig.colorbar(im, ax=ax[0, 2], shrink=0.7)
 
     im = ax[1, 2].imshow(pred_v,
                         cmap="RdBu_r", vmin=-Vlim, vmax=Vlim)
@@ -526,14 +540,14 @@ def predFieldFigure(true, VAErec, pred, std_data, mean_data, stepPlot, model_nam
     
     im = ax[2, 2].imshow(pred_p,
                         cmap="RdBu_r", vmin=-Vlim, vmax=Vlim)
-    ax[2, 2].set_title(r'$\beta$-VAE + ' + model_name + ' v\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
+    ax[2, 2].set_title(r'$\beta$-VAE + ' + model_name + ' p\n($t+$' + (str(stepPlot) if stepPlot > 1 else "") + '$t_c$)')
     fig.colorbar(im, ax=ax[2, 2], shrink=0.7)
 
-    ax[1, 0].set_xlabel('x/c')
-    ax[1, 1].set_xlabel('x/c')
-    ax[1, 2].set_xlabel('x/c')
-    ax[0, 0].set_ylabel('y/c')
-    ax[1, 0].set_ylabel('y/c')
+    ax[1, 0].set_xlabel('x')
+    ax[1, 1].set_xlabel('x')
+    ax[1, 2].set_xlabel('x')
+    ax[0, 0].set_ylabel('y')
+    ax[1, 0].set_ylabel('y')
 
     # fig.set_tight_layout(True)
 

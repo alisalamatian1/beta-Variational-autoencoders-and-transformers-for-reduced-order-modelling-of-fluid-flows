@@ -241,8 +241,7 @@ class vaeRunner(nn.Module):
         if      model_type == 'pre':    model_path = pathsBib.pretrain_path + self.filename               + self.fmat
         elif    model_type == 'val' :   model_path = pathsBib.chekp_path    + self.filename + '_bestVal' + self.fmat
         elif    model_type == 'final' : model_path = pathsBib.chekp_path    + self.filename + '_final'    + self.fmat
-        
-
+        print(model_path)
         try:
             ckpoint = torch.load(model_path, map_location= self.device)
             
@@ -450,9 +449,11 @@ class latentRunner(nn.Module):
         check_point = { "model":self.model.state_dict(),
                         "history":history,
                         "time":cost_time}
-        
-        torch.save(check_point,pathsBib.model_path + self.filename + self.fmat)
-        print(f"INFO: The checkpoints has been saved in {pathsBib.model_path + self.filename + self.fmat}")
+        breakpoint()
+        # torch.save(check_point,pathsBib.model_path + self.filename + self.fmat)
+        torch.save(check_point, pathsBib.pretrain_path + self.filename + self.fmat)
+        # print(f"INFO: The checkpoints has been saved in {pathsBib.model_path + self.filename + self.fmat}")
+        print(f"INFO: The checkpoints has been saved in {pathsBib.pretrain_path + self.filename + self.fmat}")
 
 #-------------------------------------------------
 
@@ -467,17 +468,16 @@ class latentRunner(nn.Module):
             model_type  : ['pre', 'val','final']  (str) Choose from pre-trained, best valuation and final model 
         
         """
-        
+        breakpoint()
         model_type_all = ['pre','val','final']
         assert(model_type in model_type_all), print('ERROR: No type of the model matched')
 
         if      model_type == 'pre':    model_path = pathsBib.pretrain_path + self.filename               + self.fmat
         elif    model_type == 'val' :   model_path = pathsBib.chekp_path    + self.filename + '_bestVal'  + self.fmat
         elif    model_type == 'final' : model_path = pathsBib.chekp_path    + self.filename + '_final'    + self.fmat
+
         try:
-            breakpoint()
             ckpoint = torch.load(model_path, map_location= self.device)
-            
         except:
             print("ERROR: Model NOT found!")
             exit()

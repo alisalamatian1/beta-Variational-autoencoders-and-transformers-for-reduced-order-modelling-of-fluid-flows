@@ -27,7 +27,7 @@ class easyAttn_config:
     is_output   = True
     out_act     = None
 
-    Epoch       = 100
+    Epoch       = 50
     Batch_size  = 256
     lr          = 1e-3
 

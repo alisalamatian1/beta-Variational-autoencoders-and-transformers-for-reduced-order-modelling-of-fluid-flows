@@ -5,7 +5,7 @@ class VAE_config:
 
     Re          = 40 # Reynolds number for the case
 
-    latent_dim  = 2
+    latent_dim  = 3 # CHANGE HERE
     
     delta_t     = 1
     

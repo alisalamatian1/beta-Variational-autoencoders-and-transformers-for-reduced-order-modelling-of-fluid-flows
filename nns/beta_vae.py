@@ -101,7 +101,7 @@ class VAE(nn.Module):
             nn.Conv2d(in_channels=128, out_channels=256, kernel_size=3, stride=2, padding=1),  # 2x2
             nn.ELU(),
             nn.Flatten(start_dim=1, end_dim=-1),  # 256*2*2 = 1024
-            nn.Linear(16384, 256), # 1024
+            nn.Linear(1024, 256), # 1024 16384
             nn.ELU(),
             nn.Linear(256, latent_dim * 2),
         )
@@ -111,9 +111,9 @@ class VAE(nn.Module):
         decoder = nn.Sequential(
             nn.Linear(latent_dim, 256),
             nn.ELU(),
-            nn.Linear(256, 16384), # 1024
+            nn.Linear(256, 1024), # 1024 16384
             nn.ELU(),
-            nn.Unflatten(dim=1, unflattened_size=(256, 8, 8)),  # 256x2x2
+            nn.Unflatten(dim=1, unflattened_size=(256, 2, 2)),  # 256x2x2 or 8x8
             nn.ConvTranspose2d(in_channels=256, out_channels=128, kernel_size=3, stride=2, padding=1, output_padding=1),  # 4x4
             nn.ELU(),
             nn.ConvTranspose2d(in_channels=128, out_channels=64, kernel_size=3, stride=2, padding=1, output_padding=1),  # 8x8

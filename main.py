@@ -29,7 +29,7 @@ if __name__ == "__main__":
 
     ## Env INIT
     # datafile = init.init_env(args.re)
-    datafile = "ns_incom_dt1_512.h5"
+    datafile = r"E:\CPSC550_Project\Datasets\PDEBench\ns_incom_dt1_128.h5"
 
     ## Beta-VAE
     bvae   = vaeRunner(device,datafile)

@@ -58,9 +58,9 @@ def train_epoch(model, data, optimizer, beta, device, counter=1):
             #batch_noise = batch_noise.to(device, non_blocking=True)
         rec, mean, logvariance = model(batch)# + batch_noise)
         
-        if i == 0 and counter % 100 == 0:
-            plt.imshow(rec.cpu().detach().numpy()[10, 0, :, :])
-            plt.savefig(f"reconstruction{counter}.png")
+        # if i == 0 and counter % 100 == 0:
+        #     plt.imshow(rec.cpu().detach().numpy()[10, 0, :, :])
+        #     plt.savefig(f"reconstruction{counter}.png")
         
         loss, MSE, KLD = loss_function(rec, batch, mean, logvariance, beta)
 
