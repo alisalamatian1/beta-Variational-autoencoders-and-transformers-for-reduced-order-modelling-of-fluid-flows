@@ -2,6 +2,8 @@
 Functions for naming the models in the present study
 @yuningw 
 """
+from configs.vae import VAE_config
+from configs.easyAttn import easyAttn_config
 
 
 def Name_VAE(cfg):
@@ -16,14 +18,12 @@ def Name_VAE(cfg):
         name: A string for VAE name
     """
 
-    name =  f"Re{cfg.Re}_" +\
-            f'smallerCNN_'+\
-            f'beta{cfg.beta}_' + \
-            f'wDecay{cfg.decWdecay}_'+\
-            f'dim{cfg.latent_dim}_'+\
-            f'lr{cfg.lr}OneCycleLR{cfg.lr_end}_'+\
-            f'bs{cfg.batch_size}_'+\
-            f'epochs{cfg.epochs}'
+    name =  f'beta{VAE_config.beta}_' + \
+            f'dim{VAE_config.latent_dim}_'+\
+            f'VAEepochs{VAE_config.epochs}' +\
+            f'EASY-Number{easyAttn_config.in_dim}' +\
+            f'NumHeads{easyAttn_config.num_head}' +\
+            f'Easy-Epoch{easyAttn_config.Epoch}'
     
     return name
 
@@ -40,22 +40,14 @@ def Make_Transformer_Name(cfg):
         name: A string for Transformer model
     """
     
-    case_name = f"{cfg.attn_type}Attn_"+\
-                f"{cfg.in_dim}in_"      +\
-                f'{cfg.d_model}dmodel_'  +\
-                f'{cfg.next_step}next_'+\
-                f'{cfg.nmode}dim_'+\
-                f"{cfg.embed}emb_"+\
-                f"{cfg.num_head}h_"+\
-                f"{cfg.num_block}nb_"+\
-                f"{cfg.proj_dim}ff_"+\
-                f"{cfg.act_proj}act_"+\
-                f"{cfg.out_act}outact_"+\
-                f"{cfg.Epoch}Epoch_"+\
-                f"{cfg.num_train}N_"+\
-                f"{cfg.early_stop}ES_"+\
-                f"{cfg.patience}P"
-    return case_name
+    name =  f'beta{VAE_config.beta}_' + \
+            f'dim{VAE_config.latent_dim}_'+\
+            f'VAEepochs{VAE_config.epochs}' +\
+            f'EASY-Number{easyAttn_config.in_dim}' +\
+            f'NumHeads{easyAttn_config.num_head}' +\
+            f'Easy-Epoch{easyAttn_config.Epoch}'
+            
+    return name
 
 
 
