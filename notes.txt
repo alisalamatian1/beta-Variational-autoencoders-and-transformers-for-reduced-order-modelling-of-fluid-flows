@@ -1,0 +1,40 @@
+There is a slight issue with saving the trained model under the models, it should save it under pretrained instead
+
+
+pred.shape
+(200, 3, 128, 128)
+
+RMSE: 0.17594417929649353
+nRMSE: 0.47179117798805237
+CSV Error: 0.002617431106045842
+Max Error: 0.9589709639549255
+Boundary RMSE: 0.09019041806459427
+Fourier Error: tensor([0.0310, 0.0176, 0.0045], device='cuda:0')
+
+killing process
+1298409
+
+Todos:
+Change the resolution to 512
+Change the metric data passed for metric calculation to not include the first bit
+Change the naming both the files that are saved and the way they are loaded so they are not overwritten
+
+RMSE: 0.10897518694400787
+nRMSE: 0.2844300866127014
+CSV Error: 0.0026553107891231775
+Max Error: 0.689845621585846
+Boundary RMSE: 0.10746976733207703
+Fourier Error: tensor([0.0111, 0.0102, 0.0040], device='cuda:0')
+
+RMSE: 0.1041845977306366
+nRMSE: 0.26595059037208557
+CSV Error: 0.003405940253287554
+Max Error: 0.6961776614189148
+Boundary RMSE: 0.09815970063209534
+Fourier Error: tensor([0.0097, 0.0097, 0.0040], device='cuda:0')
+INFO: Reconstruted Snapshot at 80 Saved!
+
+
+Things to change when loading our cylinder data:
+n_test = 449
+changing the encoder and decoder

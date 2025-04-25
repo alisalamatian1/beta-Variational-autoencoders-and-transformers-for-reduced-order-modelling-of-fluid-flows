@@ -28,7 +28,7 @@ os.environ["HDF5_USE_FILE_LOCKING"] = "FALSE"
 ####################################################
 
 class vaeRunner(nn.Module):
-    def __init__(self, device, datafile) -> None:
+    def __init__(self, device, datafile, compute_metrics = False) -> None:
         """
         A runner for beta-VAE
 
@@ -57,6 +57,9 @@ class vaeRunner(nn.Module):
         self.model.to(device)
 
         self.fmat       =  '.pth.tar'
+        
+        if compute_metrics:
+            self.get_data()
 
         print(f"INIT betaVAE, device: {device}")
         print(f"Case Name:\n {self.filename}")
@@ -449,7 +452,6 @@ class latentRunner(nn.Module):
         check_point = { "model":self.model.state_dict(),
                         "history":history,
                         "time":cost_time}
-        breakpoint()
         # torch.save(check_point,pathsBib.model_path + self.filename + self.fmat)
         torch.save(check_point, pathsBib.pretrain_path + self.filename + self.fmat)
         # print(f"INFO: The checkpoints has been saved in {pathsBib.model_path + self.filename + self.fmat}")
@@ -468,7 +470,6 @@ class latentRunner(nn.Module):
             model_type  : ['pre', 'val','final']  (str) Choose from pre-trained, best valuation and final model 
         
         """
-        breakpoint()
         model_type_all = ['pre','val','final']
         assert(model_type in model_type_all), print('ERROR: No type of the model matched')
 

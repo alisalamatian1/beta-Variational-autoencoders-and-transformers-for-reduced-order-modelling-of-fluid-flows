@@ -6,7 +6,12 @@ The Visualisation of time-series prediction results
 """
 
 from lib.runners import latentRunner, vaeRunner
-
+import sys
+sys.path.append('../PDEBench/pdebench/models')
+from metrics import metric_func
+import torch
+from configs.vae import VAE_config
+from configs.easyAttn import easyAttn_config
 
 #-----------------------------------------------------------
 class colorplate:
@@ -30,7 +35,8 @@ def vis_temporal_Prediction(
                             if_window   = True,
                             if_pmap_s   = False,
                             if_pmap_all = False,
-                            if_snapshot = True
+                            if_snapshot = True,
+                            compute_metrics = False
                             ):
     """
     Visualisation of the temporal-dynamics prediction results 
@@ -65,6 +71,7 @@ def vis_temporal_Prediction(
     figPath     = pathsBib.fig_path + model_type + '/'
     case_name   = predictor.filename
     datPath     = pathsBib.res_path + case_name + '.npz'
+    metricPath  = "metrics_hyperparam_tuning_both_vae_easy.log"
     
     print("#"*30)
     print(f"Start visualisation:\nSave Fig to:{figPath}\nLoad data from:{datPath}")
@@ -119,8 +126,36 @@ def vis_temporal_Prediction(
     if if_snapshot and (p.any() != None) and (g.any() != None):
         VAErec, pred = make_physical_prediction(vae=vae,pred_latent=p,true_latent=g,device=vae.device)
         
+        if compute_metrics and vae.val_dl:
+            # load the data first and take the last part as test
+            target = vae.val_dl.dataset.unsqueeze(0).permute(0,3,4,1,2)
+            pred_tensor = torch.from_numpy(pred).unsqueeze(0).permute(0,3,4,1,2)
+            pred_tensor_trucated = pred_tensor[:, :, :, easyAttn_config.out_dim:, :]
+            target_truncated = target[:, :, :, easyAttn_config.out_dim:, :]
+            
+            
+            err_RMSE, err_nRMSE, err_CSV, err_Max, err_BD, err_F = metric_func(pred_tensor_trucated, target_truncated, initial_step=0)
+            print(f"RMSE: {err_RMSE}\nnRMSE: {err_nRMSE}\nCSV Error: {err_CSV}\nMax Error: {err_Max}\nBoundary RMSE: {err_BD}\nFourier Error: {err_F}")
+                    
+            with open(metricPath, "a") as f:
+                f.write("-" * 20 + "\n") 
+                f.write(f"RMSE: {err_RMSE}\n")
+                f.write(f"nRMSE: {err_nRMSE}\n")
+                f.write(f"CSV Error: {err_CSV}\n")
+                f.write(f"Max Error: {err_Max}\n")
+                f.write(f"Boundary RMSE: {err_BD}\n")
+                f.write(f"Fourier Error: {err_F}\n")
+                f.write("VAE Config Parameters:\n")
+                for k, v in vars(VAE_config).items():
+                    if not k.startswith("__"):  # Skip special attributes
+                        f.write(f"{k}: {v}\n")
+                        
+                f.write("\nEasyAttn Config Parameters:\n")
+                for k, v in vars(easyAttn_config).items():
+                    if not k.startswith("__"):
+                        f.write(f"{k}: {v}\n")
         # stepPlot     = int(predictor.config.in_dim + 1) # Here we test the prediction purely based on the predicted variables 
-        stepPlot = 110
+        stepPlot = 80
         
         predFieldFigure(vae.test_d,VAErec,pred,
                         vae.std,vae.mean,
@@ -473,28 +508,28 @@ def predFieldFigure(true, VAErec, pred, std_data, mean_data, stepPlot, model_nam
     Vlim = 2.5
 
     # From dataset
-    true_u  = (true[stepPlot, 0, :, :]).squeeze()# * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
-    true_v  = (true[stepPlot, 1, :, :]).squeeze()# * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
-    true_p  = (true[stepPlot, 2, :, :]).squeeze()# * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    # true_u  = (true[stepPlot, 0, :, :]).squeeze()# * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    # true_v  = (true[stepPlot, 1, :, :]).squeeze()# * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    # true_p  = (true[stepPlot, 2, :, :]).squeeze()# * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
     
-    vae_u   = (VAErec[stepPlot, 0, :, :]).squeeze()# * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
-    vae_v   = (VAErec[stepPlot, 1, :, :]).squeeze()# * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
-    vae_p   = (VAErec[stepPlot, 2, :, :]).squeeze()# * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    # vae_u   = (VAErec[stepPlot, 0, :, :]).squeeze()# * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    # vae_v   = (VAErec[stepPlot, 1, :, :]).squeeze()# * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    # vae_p   = (VAErec[stepPlot, 2, :, :]).squeeze()# * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
     
-    pred_u  = (pred[stepPlot, 0, :, :]).squeeze()# * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
-    pred_v  = (pred[stepPlot, 1, :, :]).squeeze()# * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
-    pred_p  = (pred[stepPlot, 2, :, :]).squeeze()# * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
-    # true_u  = (true[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
-    # true_v  = (true[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
-    # true_p  = (true[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    # pred_u  = (pred[stepPlot, 0, :, :]).squeeze()# * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    # pred_v  = (pred[stepPlot, 1, :, :]).squeeze()# * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    # pred_p  = (pred[stepPlot, 2, :, :]).squeeze()# * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    true_u  = (true[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    true_v  = (true[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    true_p  = (true[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
     
-    # vae_u   = (VAErec[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
-    # vae_v   = (VAErec[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
-    # vae_p   = (VAErec[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    vae_u   = (VAErec[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    vae_v   = (VAErec[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    vae_p   = (VAErec[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
     
-    # pred_u  = (pred[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
-    # pred_v  = (pred[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
-    # pred_p  = (pred[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
+    pred_u  = (pred[stepPlot, 0, :, :] * std_data[0, 0, :, :] + mean_data[0, 0, :, :]).squeeze()
+    pred_v  = (pred[stepPlot, 1, :, :] * std_data[0, 1, :, :] + mean_data[0, 1, :, :]).squeeze()
+    pred_p  = (pred[stepPlot, 2, :, :] * std_data[0, 2, :, :] + mean_data[0, 2, :, :]).squeeze()
 
     
     im = ax[0, 0].imshow(true_u,

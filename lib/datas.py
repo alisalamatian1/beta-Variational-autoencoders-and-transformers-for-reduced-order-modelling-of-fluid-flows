@@ -42,10 +42,10 @@ def loadData(file, printer=False):
         # std = f['std'][()]
         velocity = f["Velocity"][:]
         pressure = f["pressure"][:]
-        u_scaled = np.concatenate((velocity, pressure), axis=3)
+        u_scaled = np.concatenate((velocity, pressure), axis=3).astype(np.float32)
         mean = np.mean(u_scaled, axis=0, keepdims=True).astype(np.float32)
-        std = np.array([np.std(u_scaled[:, :, :, i]) for i in range(u_scaled.shape[-1])])
-        breakpoint()
+        std = np.array([np.std(u_scaled[:, :, :, i]) for i in range(u_scaled.shape[-1])]).astype(np.float32)
+        u_scaled = (u_scaled - mean) / std
         # 1000, 128, 128, 2
         # temp = f["Velocity"][:]
         # # 1000, 2, 128, 128
@@ -60,6 +60,7 @@ def loadData(file, printer=False):
     mean = np.moveaxis(mean, -1, 1)
     # std = np.moveaxis(std, -1, 1)
     std = std.reshape((1, 3, 1, 1))
+
     
     if printer:
         print('u_scaled: ', u_scaled.shape)

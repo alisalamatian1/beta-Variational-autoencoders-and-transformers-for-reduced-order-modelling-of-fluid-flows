@@ -340,6 +340,7 @@ def vis_bvae(modes_file, training_file):
     else:
         fs = 5
 
+    path = path + training_file.split("logs/")[1]
     plotNLmodeField(NLmodes, NLvalues, path)
     plotCompleteModes(modes, temporalModes, modes.shape[0], fs, order, path)
     plotTemporalSeries(temporalModes, path)

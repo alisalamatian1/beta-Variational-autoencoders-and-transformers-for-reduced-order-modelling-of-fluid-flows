@@ -54,9 +54,15 @@ def get_predictors(name):
                                                 d_ff        = cfg.proj_dim,
                                                 num_head    = cfg.num_head,
                                                 num_layer   = cfg.num_block,)
-        except: 
+        except Exception as e: 
+            breakpoint()
             print("ERROR: Parameter NOT MATCHED!")
-            exit()
+            print(f"In model faced an issue {e}")
+            print(f"d_input={cfg.in_dim}, d_output={cfg.next_step}, seqLen={cfg.nmode}, "
+            f"d_proj={cfg.time_proj}, d_model={cfg.d_model}, d_ff={cfg.proj_dim}, "
+            f"num_head={cfg.num_head}, num_layer={cfg.num_block}")
+            # exit()
+            raise
 
         filename = Make_Transformer_Name(cfg)
         print(f"Easy-Attention-based Transformer has been generated")
