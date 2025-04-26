@@ -1,8 +1,10 @@
 from itertools import product
 from configs.vae import VAE_config
 from configs.easyAttn import easyAttn_config
+from config.lstm import lstm_config
 from main import main
 import sys
+import traceback
 
 # Define search space
 '''
@@ -13,10 +15,10 @@ epoch list for easy
 beta -> orthogonality
 easy_params -> determines the number of params as well as the window size
 '''
-latent_dims = [2,3,5,7]
-epochs_list = [50, 100, 500]
-betas = [0.001, 0.005, 0.01, 0.05, 0.1]
-easy_params = [8, 32, 64, 128]
+latent_dims = [2,3,5]
+epochs_list = [100, 500]
+betas = [0.001, 0.005, 0.01]
+easy_params = [8, 32, 64]
 num_heads = [4, 8, 16]
 
 
@@ -26,13 +28,13 @@ num_heads = [4, 8, 16]
 # epochs_list = [50]
 # betas = [0.001]
 # easy_params = [8]
-# num_heads = [4, 8]
+# num_heads = [8]
 
 
 # Iterate over all combinations
 for latent_dim, epochs, beta, easy_param, num_head in product(
     latent_dims, epochs_list, betas, easy_params, num_heads
-):
+):  
     
     # check if the num_heads is divisible by the easy params
     if easy_param % num_head != 0:
@@ -43,6 +45,7 @@ for latent_dim, epochs, beta, easy_param, num_head in product(
     easyAttn_config.nmode = latent_dim
     
     easyAttn_config.Epoch = epochs
+    lstm_config.Epoch = epochs
     
     VAE_config.beta = beta
     
@@ -53,6 +56,12 @@ for latent_dim, epochs, beta, easy_param, num_head in product(
     easyAttn_config.proj_dim = 2 * easy_param
     
     easyAttn_config.num_head = num_head
+    
+    lstm_config.in_dim = easy_param
+    lstm_config.d_model = easy_param
+    lstm_config.hidden_size = 2 * easy_param
+    
+    easyAttn_config.num_layer = num_head
     
     print(f"\n--- Running with: latent_dim={latent_dim}, easy epochs={epochs}, "
       f"beta={beta}, easy_param={easy_param}, num_head={num_head}")
@@ -98,4 +107,8 @@ for latent_dim, epochs, beta, easy_param, num_head in product(
         ]
         main()
     except Exception as e:
+        print("!!!!!AN ERROR OCCURED!!!!!")
         print(f"Error: {e}")
+        traceback.print_exc()
+        
+# run with: PYTHONBREAKPOINT=0 nohup python tuner.py > output_metrics_v3.log 2>&1 &
